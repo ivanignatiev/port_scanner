@@ -23,18 +23,13 @@ class CmdParser(argparse.ArgumentParser):
                               """, metavar="", required=True)
             self.add_argument("-p", "--passive", help="Passive scan mode", metavar="")
             self.add_argument("-s", "--quiet", help="Semi-quiet mode", metavar="")
-            args = vars(self.parse_args())
+            if len(args) <= 1:
+                raise TypeError
+            args = self.parse_args()
+            print ("Yo!")
+            print (args.host)
         except TypeError:
             print ("Given argument(s) is/are incorrect. Usage is as follow:")
             self.print_help()
+            sys.exit(2)
         return args
-        
-    def parse_ip(self, ipAddress):
-        occurences = ipAddress.count('.')
-        if occurences == 0:
-            occurences = ipAddress.count(':')
-            if occurences == 0:
-                return ""
-            return "ipv6"
-        return "ipv4"
-            
