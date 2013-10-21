@@ -1,5 +1,8 @@
 
+import sys
 import socket
+from pprint import pprint
+from netaddr import *
 
 __author__  = "ignati_i"
 __date__    =   "$Sep 30, 2013 3:53:32 PM$"
@@ -16,6 +19,8 @@ class Port(object):
         self.hostname = hostname;
         
         # TODO : add option for timeout
+        # TODO : add option for passive scan
+        # TODO : add filtered detection
         
         try:
             self.serv_name = socket.getservbyport(port_number)
@@ -23,12 +28,13 @@ class Port(object):
             self.serv_name = "undef"
         
         try:
-            self.connection = socket.create_connection((self.hostname, self.port_number), 0.5)
+            self.connection = socket.create_connection((str(self.hostname), self.port_number), 0.5)
             print("connection open : " , port_number, "/",  self.serv_name)
             self.connection.close()
         except:
             self.connection = None
             print("connection close : " , port_number, "/",  self.serv_name)
+            print(sys.exc_info())
         
     def __str__(self):
         return str(self.port_number)
@@ -41,7 +47,7 @@ class Port(object):
         for port_range in ports_ranges:
             if port_range.find("-") >= 0:
                 rng = port_range.split("-")
-                ports_list = ports_list + list(range(int(rng[0]), int(rng[1]) + 1))
+                ports_list.extend(list(range(int(rng[0]), int(rng[1]) + 1)))
             else:
                 ports_list.append(int(port_range))
         return ports_list
