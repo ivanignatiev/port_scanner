@@ -42,13 +42,11 @@ class Port(object):
     @staticmethod
     def ports_list(ports):
         ports.strip()
-        ports_list = []
         ports_ranges = ports.split(",")
         for port_range in ports_ranges:
             if port_range.find("-") >= 0:
                 rng = port_range.split("-")
-                ports_list.extend(list(range(int(rng[0]), int(rng[1]) + 1)))
+                for i in range(int(rng[0]), int(rng[1]) + 1):
+                    yield i
             else:
-                ports_list.append(int(port_range))
-        return ports_list
-    
+                yield int(port_range)

@@ -10,29 +10,27 @@ __date__    =   "$Sep 30, 2013 3:53:32 PM$"
 
 class Host(object):
     """ Describe scanning host """
-    ip_address = ""
-    ports_list = []
+    address = ()
     ports = {}
     
     def __init__(self, address):
-        self.ip_address = address[0]
-        self.ports_list = Port.ports_list(address[1])
+        self.address = address
         
-        print("init host : " , self.ip_address, " [ " , self.ports_list, " ] ")
+        print("init host : " , self.address)
         self.port_scan()
         
     def __str__(self):
         """ Convert host object to string representation """
         
-        return str(self.ip_address)
+        return str(self.address)
 
     def port_scan(self):
         """ Scan range of ports """
         
         # TODO : random port choose for scaning
         
-        for port in self.ports_list:
-            self.ports[port] = Port(self.ip_address, port)
+        for port in Port.ports_list(self.address[1]):
+            self.ports[port] = Port(self.address[0], port)
         
         return self.ports
     
@@ -40,7 +38,6 @@ class Host(object):
     def hosts_list(hosts, default_ports = "0-1024"):
         """ Create from string hosts list of addresses """
         hosts = hosts.strip()
-        hosts_list = []        
         hosts_ranges = re.findall(r"((?:(?:\([^(),]+\))|(?:[^(),:\-]+)):?(?:(?:\([^()]+\))|(?:[^(),:\-]+))),?", hosts)
         
         for host in hosts_ranges:
@@ -55,14 +52,14 @@ class Host(object):
                 host, port = tuple(host.replace("(", "").replace(")", "").split(":"))
                 
             if host.find("/") > 0:
-                hosts_list.extend([(ip, port) for ip in IPNetwork(host)])
+                for ip in IPNetwork(host):
+                    yield (ip, port)
             elif host.find("-") > 0:
                 start_host, end_host = tuple(host.split("-"))
-                hosts_list.extend([(ip, port) for ip in list(iter_iprange(start_host, end_host))])
+                for ip in iter_iprange(start_host, end_host):
+                    yield (ip, port)
             else:
-                hosts_list.append((IPAddress(host), port))
-                
-        return hosts_list
+                yield (IPAddress(host), port)
     
     
     
