@@ -35,6 +35,10 @@ class Host(object):
         return self.ports
     
     @staticmethod
+    def resolv_dns(host):
+        return socket.getaddrinfo(host, None, socket.AF_UNSPEC)[0][4][0]
+    
+    @staticmethod
     def hosts_list(hosts, default_ports = "0-1024"):
         """ Create from string hosts list of addresses """
         hosts = hosts.strip()
@@ -52,14 +56,14 @@ class Host(object):
                 host, port = tuple(host.replace("(", "").replace(")", "").split(":"))
                 
             if host.find("/") > 0:
-                for ip in IPNetwork(host):
+                for ip in IPNetwork(Host.resolv_dns(host)):
                     yield (ip, port)
             elif host.find("-") > 0:
                 start_host, end_host = tuple(host.split("-"))
-                for ip in iter_iprange(start_host, end_host):
+                for ip in iter_iprange(Host.resolv_dns(start_host), Host.resolv_dns(end_host)):
                     yield (ip, port)
             else:
-                yield (IPAddress(host), port)
+                yield (IPAddress(Host.resolv_dns(host)), port)
     
     
     

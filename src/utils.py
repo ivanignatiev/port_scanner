@@ -20,13 +20,11 @@ class CmdParser(argparse.ArgumentParser):
                               -ipv6 have to be in the folowing form:
                                 xXxX:xXxX:xXxX:xXxX:xXxX:xXxX:xXxX:xXxX
                               where x and X are hexadecimal numbers.
-                              """, metavar="", required=True)
+                              """, metavar="")
             self.add_argument("-P", "--port", help="port or ports range", metavar="")
             self.add_argument("-p", "--passive", help="Passive scan mode", metavar="")
             self.add_argument("-s", "--quiet", help="Semi-quiet mode", metavar="")
             self.set_defaults(port="0-1023")
-            if len(args) <= 1:
-                raise TypeError
             args = self.parse_args()
         except TypeError:
             print ("Given argument(s) is/are incorrect. Usage is as follow:")

@@ -12,7 +12,7 @@ class Port(object):
     port_number = 0
     hostname = ""
     serv_name = ""
-    connection = None
+    state = ""
     
     def __init__(self, hostname, port_number):
         self.port_number = port_number
@@ -28,16 +28,34 @@ class Port(object):
             self.serv_name = "undef"
         
         try:
-            self.connection = socket.create_connection((str(self.hostname), self.port_number), 0.5)
-            print("connection open : " , port_number, "/",  self.serv_name)
-            self.connection.close()
+            #if self.hostname.version == 6:
+            #    sock = socket.socket(socket.AF_INET6, socket.SOCK_RAW)
+            #else:
+            #    sock = socket.socket(socket.AF_INET, socket.SOCK_RAW)
+            #packet = TCPPacket(sock, self.hostname, 0)
+            #packet.send()
+            #if (packet.hasanswer()):
+            #    self.state = "open"
+            #else:
+            #    self.state = "filtered"
+            
+            sock = socket.create_connection((str(self.hostname), self.port_number), 0.2)
+            sock.send(bytes(32))
+            if (len(sock.recv(32)) > 0):
+                self.state = "open"
+            else:
+                self.state = "filtered"
+            sock.close()
         except:
-            self.connection = None
-            print("connection close : " , port_number, "/",  self.serv_name)
-            print(sys.exc_info())
-        
+            self.state = "close"
+            
+            # TODO: Debug
+            print("Exception : ", sys.exc_info())
+            raise
+        print(self.__str__());
+            
     def __str__(self):
-        return str(self.port_number)
+        return str(":".join([str(self.port_number), self.state, self.serv_name]))
     
     @staticmethod
     def ports_list(ports):
