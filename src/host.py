@@ -1,12 +1,9 @@
-
 import socket
 import re
+import random
 from pprint import pprint
 from netaddr import *
 from port import Port
-
-__author__  =   "ignati_i"
-__date__    =   "$Sep 30, 2013 3:53:32 PM$"
 
 class Host(object):
     """ Describe scanning host """
@@ -15,38 +12,36 @@ class Host(object):
     
     def __init__(self, address):
         self.address = address
-        
-        print("init host : " , self.address)
+        print("scan:" , str(self.address[0]))
         self.port_scan()
         
     def __str__(self):
         """ Convert host object to string representation """
-        
         return str(self.address)
 
     def port_scan(self):
         """ Scan range of ports """
-        
-        # TODO : random port choose for scaning
-        
-        for port in Port.ports_list(self.address[1]):
+        scan_ports = list(Port.ports_list(self.address[1]))
+        random.shuffle(scan_ports)
+        for port in scan_ports:
             self.ports[port] = Port(self.address[0], port)
-        
+            print(self.ports[port])
         return self.ports
     
     @staticmethod
     def resolv_dns(host):
-        return socket.getaddrinfo(host, None, socket.AF_UNSPEC)[0][4][0]
+        resolved_host = socket.getaddrinfo(host, None, socket.AF_UNSPEC)[0][4][0]
+        if not host == resolved_host:
+            print(host, ":resolved_like:", resolved_host)
+        return resolved_host
     
     @staticmethod
     def hosts_list(hosts, default_ports = "0-1024"):
         """ Create from string hosts list of addresses """
         hosts = hosts.strip()
         hosts_ranges = re.findall(r"((?:(?:\([^(),]+\))|(?:[^(),:\-]+)):?(?:(?:\([^()]+\))|(?:[^(),:\-]+))),?", hosts)
-        
         for host in hosts_ranges:
             port = default_ports
-            
             if host.find("):") >= 0:
                 """ IPv6 with port detected """
                 host, port = tuple(host.split("):"))

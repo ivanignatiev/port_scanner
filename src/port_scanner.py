@@ -24,8 +24,7 @@ if __name__ == "__main__":
             portscanner.scan(args.host, args.port)
         except SystemExit:
             pass
-        except:
-            # TODO: Debug
-            print("Exception : ", sys.exc_info())
-            raise
+        except:            
+            print("exception:",sys.exc_info()[0], ":", sys.exc_info()[1])
+            pass
             
